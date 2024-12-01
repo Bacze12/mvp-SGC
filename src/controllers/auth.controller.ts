@@ -13,12 +13,12 @@ export class AuthController {
     // Convertir a arrow functions para preservar el contexto
     public register = async (req: Request, res: Response): Promise<Response | void> => {
         try {
-            const { email, password } = req.body;
+            const { email, password, role } = req.body;
             if (!email || !password) {
                 res.status(400).json({ message: 'Email and password are required' });
                 return;
             }
-            const user = await this.authService.register({ email, password, role: 'cashier' });
+            const user = await this.authService.register({ email, password, role });
             res.status(201).json(user);
         } catch (error: any) {
             res.status(500).json({ message: error?.message || 'Internal server error' });
