@@ -1,7 +1,11 @@
 import express, { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { createUserSchema } from '../schema/user.schema';
+import { UserController } from '../controllers/user.controller';
+import { validate } from '../middleware/validate';
 
 const router = express.Router();
+const userController = new UserController();
 
 const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization'];
@@ -22,23 +26,16 @@ const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
     });
 };
 
-router.post('/', authenticateToken, async (req: Request, res: Response) => {
-    try {
-        res.status(201).json({
-            email: req.body.email,
-            role: req.body.role
-        });
-    } catch (error) {
-        res.status(500).json({ error: 'Error creating user' });
-    }
-});
+router.post('/', 
+    authenticateToken, 
+    validate(createUserSchema),
+    userController.createUser
+);
 
-router.get('/', authenticateToken, async (req: Request, res: Response) => {
-    try {
-        res.status(200).json([]);
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching users' });
-    }
-});
+router.get('/', authenticateToken, userController.getUsers);
+
+router.get('/:id', authenticateToken, userController.getUserById);
+router.put('/:id', authenticateToken, userController.updateUser);
+router.delete('/:id', authenticateToken, userController.deleteUser);
 
 export default router;
