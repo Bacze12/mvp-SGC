@@ -17,14 +17,15 @@ export class AuthMiddleware {
     return jwt.verify(token, process.env.JWT_SECRET) as JWTPayload;
   }
 
-  static authenticate(req: Request, res: Response, next: NextFunction) {
+  static authenticate(req: Request, res: Response, next: NextFunction): void {
     try {
       const authHeader = req.headers.authorization;
       if (!authHeader?.startsWith('Bearer ')) {
-        return res.status(401).json({ 
+        res.status(401).json({ 
           error: 'Unauthorized', 
           message: 'Authentication token is required' 
         });
+        return;
       }
 
       const token = authHeader.split(' ')[1];
@@ -33,38 +34,41 @@ export class AuthMiddleware {
       next();
     } catch (error) {
       if (error instanceof jwt.JsonWebTokenError) {
-        return res.status(401).json({ 
+        res.status(401).json({ 
           error: 'Unauthorized', 
           message: 'Invalid token' 
         });
+        return;
       }
-      return res.status(500).json({ 
+      res.status(500).json({ 
         error: 'Internal Server Error',
         message: 'Authentication failed' 
       });
     }
   }
 
-  static authorize(allowedRoles: ('admin' | 'cashier')[]) {
-    return (req: Request, res: Response, next: NextFunction) => {
+  static authorize(allowedRoles: ('admin' | 'cashier')[]): (req: Request, res: Response, next: NextFunction) => void {
+    return (req: Request, res: Response, next: NextFunction): void => {
       try {
         if (!req.user) {
-          return res.status(401).json({ 
+          res.status(401).json({ 
             error: 'Unauthorized',
             message: 'User not authenticated' 
           });
+          return;
         }
 
         if (!allowedRoles.includes(req.user.role)) {
-          return res.status(403).json({ 
+          res.status(403).json({ 
             error: 'Forbidden',
             message: 'Insufficient permissions' 
           });
+          return;
         }
 
         next();
       } catch (error) {
-        return res.status(500).json({ 
+        res.status(500).json({ 
           error: 'Internal Server Error',
           message: 'Authorization failed' 
         });
