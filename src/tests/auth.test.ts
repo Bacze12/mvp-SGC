@@ -18,8 +18,8 @@ describe('Authentication Endpoints', () => {
         const res = await request(app)
             .post('/auth/login')
             .send({
-                email: 'test@example.com',
-                password: 'password123',
+                email: 'admin@example.com',
+                password: 'admin123'
             });
 
         expect(res.statusCode).toEqual(200);

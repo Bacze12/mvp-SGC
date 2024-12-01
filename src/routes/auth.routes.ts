@@ -1,11 +1,28 @@
-import { Router } from 'express';
+import { Router, Request, Response, RequestHandler } from 'express';
 import { AuthController } from '../controllers/auth.controller';
+import { UserService } from '../services/user.service';
 
 const router = Router();
-const authController = new AuthController();
+const userService = new UserService();
+const authController = new AuthController(userService);
 
-// Sin necesidad de .bind()
-router.post('/register', authController.register);
-router.post('/login', authController.login);
+const registerHandler: RequestHandler = async (req, res, next) => {
+    try {
+        await authController.register(req, res);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const loginHandler: RequestHandler = async (req, res, next) => {
+    try {
+        await authController.login(req, res);
+    } catch (error) {
+        next(error);
+    }
+};
+
+router.post('/register', registerHandler);
+router.post('/login', loginHandler);
 
 export default router;
