@@ -1,4 +1,4 @@
-name: Node.js CI
+name: Node.js CI/CD with Render
 
 on:
   push:
@@ -18,3 +18,17 @@ jobs:
       - run: npm install
       - run: npm run build
       - run: npm test
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to Render
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          curl -X POST \
+            -H "Accept: application/json" \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            https://api.render.com/v1/services/srv-ct5rhmt2ng1s738p0v40/deploys

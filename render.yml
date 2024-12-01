@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: sgc-backend
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    branch: main
+    autoDeploy: true
